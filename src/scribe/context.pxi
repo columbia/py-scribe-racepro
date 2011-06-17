@@ -36,6 +36,9 @@ cdef void on_bookmark(void *private_data, int id, int npr) with gil:
     except:
         traceback.print_exc()
 
+cdef void on_attach(void *private_data, pid_t real_pid, pid_t scribe_pid) with gil:
+    (<Context>private_data).on_attach(real_pid, scribe_pid)
+
 
 cdef char **list_to_pstr(strings):
     cdef char **array
@@ -83,7 +86,8 @@ cdef scribe_api.scribe_operations scribe_ops= {
     'init_loader': init_loader,
     'on_backtrace': on_backtrace,
     'on_diverge': on_diverge,
-    'on_bookmark': on_bookmark
+    'on_bookmark': on_bookmark,
+    'on_attach': on_attach
 }
 
 
@@ -359,6 +363,8 @@ cdef class Context:
     def on_bookmark(self, id, npr):
         self.resume()
 
+    def on_attach(self, real_pid, scribe_pid):
+        pass
 
 
 class Popen(subprocess.Popen):
